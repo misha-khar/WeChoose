@@ -1,125 +1,172 @@
+import 'example_candidate_model.dart';
+import 'example_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Example(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class Example extends StatefulWidget {
+  const Example({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<Example> createState() => _ExamplePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _ExamplePageState extends State<Example> {
+  final CardSwiperController controller = CardSwiperController();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  final cards = candidates.map(ExampleCard.new).toList();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SafeArea(
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          children: [
+            Flexible(
+              child: CardSwiper(
+                controller: controller,
+                cardsCount: cards.length,
+                onSwipe: _onSwipe,
+                onUndo: _onUndo,
+                numberOfCardsDisplayed: 1,
+                backCardOffset: const Offset(40, 40),
+                padding: const EdgeInsets.all(24.0),
+                cardBuilder: (
+                  context,
+                  index,
+                  horizontalThresholdPercentage,
+                  verticalThresholdPercentage,
+                ) =>
+                    cards[index],
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FloatingActionButton(
+                    onPressed: controller.undo,
+                    backgroundColor: Colors.white,
+                    foregroundColor:
+                        Colors.blue, // Change this to the desired outline color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                      side: const BorderSide(color: Colors.blue),
+                    ),
+                    tooltip: 'Undo',
+                    child: const Icon(
+                      Icons.restore,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  FloatingActionButton(
+                    onPressed: controller.swipeLeft,
+                    backgroundColor: Colors.white,
+                    foregroundColor:
+                        Colors.blue, // Change this to the desired outline color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                      side: const BorderSide(color: Colors.blue),
+                    ),
+                    tooltip: 'Dislike',
+                    child: const Icon(Icons.close, color: Colors.red),
+                  ),
+                  FloatingActionButton(
+                    onPressed: controller.swipeRight,
+                    backgroundColor: Colors.white,
+                    foregroundColor:
+                        Colors.blue, // Change this to the desired outline color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          30.0), // Adjust the radius as needed
+                      side: const BorderSide(color: Colors.blue),
+                    ),
+                    tooltip: 'Like',
+                    child: const Icon(Icons.favorite, color: Colors.green),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+  bool _onSwipe(
+    int previousIndex,
+    int? currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    debugPrint(
+      'The card $previousIndex was swiped to the ${direction.name}. Now the card $currentIndex is on top',
+    );
+    return true;
+  }
+
+  bool _onUndo(
+    int? previousIndex,
+    int currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    debugPrint(
+      'The card $currentIndex was undod from the ${direction.name}',
+    );
+    return true;
+  }
 }
+
+final List<ExampleCandidateModel> candidates = [
+  ExampleCandidateModel(
+    name: 'Location 1',
+    address: '123 Main St, Cityville',
+    color: const [Color(0xFFFF3868), Color(0xFFFFB49A)],
+    placeId: 'your_yelp_place_id_1',
+    imageUrl:
+        'https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+  ),
+  ExampleCandidateModel(
+    name: 'Location 2',
+    address: '456 Oak St, Townsville',
+    color: const [Color(0xFF736EFE), Color(0xFF62E4EC)],
+    placeId: 'your_yelp_place_id_2',
+    imageUrl:
+        'https://images.pexels.com/photos/914388/pexels-photo-914388.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+  ),
+  ExampleCandidateModel(
+    name: 'Location 3',
+    address: '789 Pine St, Villageton',
+    color: const [Color(0xFF2F80ED), Color(0xFF56CCF2)],
+    placeId: 'your_yelp_place_id_3',
+    imageUrl:
+        'https://images.pexels.com/photos/984888/pexels-photo-984888.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+  ),
+  ExampleCandidateModel(
+    name: 'Location 4',
+    address: '1011 Elm St, Hamletville',
+    color: const [Color(0xFF0BA4E0), Color(0xFFA9E4BD)],
+    placeId: 'your_yelp_place_id_4',
+    imageUrl:
+        'https://images.pexels.com/photos/4450334/pexels-photo-4450334.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+  ),
+  // Add other locations similarly
+];
