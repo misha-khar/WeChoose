@@ -1,44 +1,34 @@
-import 'example_candidate_model.dart';
-import 'example_card.dart';
+// main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'splash_screen.dart';
-import 'main_screen.dart'; // Import the MainScreen widget
+import 'example_candidate_model.dart';
+import 'example_card.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Example(),
-    ),
-  );
-}
+class MainScreen extends StatefulWidget {
+  final String location;
+  final String locationType;
 
-class Example extends StatefulWidget {
-  const Example({Key? key}) : super(key: key);
+  const MainScreen({
+    Key? key,
+    required this.location,
+    required this.locationType,
+  }) : super(key: key);
 
   @override
-  State<Example> createState() => _ExamplePageState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _ExamplePageState extends State<Example> {
+class _MainScreenState extends State<MainScreen> {
   final CardSwiperController controller = CardSwiperController();
-  final TextEditingController locationController = TextEditingController();
 
   final cards = candidates.map(ExampleCard.new).toList();
-
-  bool isEditingLocation = false;
-
-  @override
-  void dispose() {
-    controller.dispose();
-    locationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main Screen'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -79,67 +69,32 @@ class _ExamplePageState extends State<Example> {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isEditingLocation = !isEditingLocation;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.blue),
-                          const SizedBox(width: 8),
-                          Text(
-                            locationController.text,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              decoration: isEditingLocation
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
-                            ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on, color: Colors.blue),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.location,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            if (isEditingLocation)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: locationController,
-                  onChanged: (value) {
-                    setState(() {
-                      // Update the location in real-time
-                      locationController.text = value;
-                    });
-                  },
-                  onSubmitted: (value) {
-                    setState(() {
-                      // Hide the text field on "Enter" press
-                      isEditingLocation = false;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your location',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
             Flexible(
               child: CardSwiper(
                 controller: controller,
                 cardsCount: cards.length,
-                onSwipe: _onSwipe,
-                onUndo: _onUndo,
                 numberOfCardsDisplayed: 1,
                 backCardOffset: const Offset(40, 40),
                 padding: const EdgeInsets.all(24.0),
@@ -153,7 +108,7 @@ class _ExamplePageState extends State<Example> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -197,27 +152,5 @@ class _ExamplePageState extends State<Example> {
         ),
       ),
     );
-  }
-
-  bool _onSwipe(
-    int previousIndex,
-    int? currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    debugPrint(
-      'The card $previousIndex was swiped to the ${direction.name}. Now the card $currentIndex is on top',
-    );
-    return true;
-  }
-
-  bool _onUndo(
-    int? previousIndex,
-    int currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    debugPrint(
-      'The card $currentIndex was undod from the ${direction.name}',
-    );
-    return true;
   }
 }
