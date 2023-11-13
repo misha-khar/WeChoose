@@ -13,9 +13,7 @@ void main() {
 }
 
 class Example extends StatefulWidget {
-  const Example({
-    Key? key,
-  }) : super(key: key);
+  const Example({Key? key}) : super(key: key);
 
   @override
   State<Example> createState() => _ExamplePageState();
@@ -23,12 +21,16 @@ class Example extends StatefulWidget {
 
 class _ExamplePageState extends State<Example> {
   final CardSwiperController controller = CardSwiperController();
+  final TextEditingController locationController = TextEditingController();
 
   final cards = candidates.map(ExampleCard.new).toList();
+
+  bool isEditingLocation = false;
 
   @override
   void dispose() {
     controller.dispose();
+    locationController.dispose();
     super.dispose();
   }
 
@@ -38,6 +40,98 @@ class _ExamplePageState extends State<Example> {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2.0,
+                          ),
+                        ),
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.blue,
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'John Doe', // Replace with user's name
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'User Type', // Replace with user's type
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isEditingLocation = !isEditingLocation;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          Text(
+                            locationController.text,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              decoration: isEditingLocation
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isEditingLocation)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: locationController,
+                  onChanged: (value) {
+                    setState(() {
+                      // Update the location in real-time
+                      locationController.text = value;
+                    });
+                  },
+                  onSubmitted: (value) {
+                    setState(() {
+                      // Hide the text field on "Enter" press
+                      isEditingLocation = false;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Enter your location',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
             Flexible(
               child: CardSwiper(
                 controller: controller,
@@ -64,27 +158,20 @@ class _ExamplePageState extends State<Example> {
                   FloatingActionButton(
                     onPressed: controller.undo,
                     backgroundColor: Colors.white,
-                    foregroundColor:
-                        Colors.blue, // Change this to the desired outline color
+                    foregroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
+                      borderRadius: BorderRadius.circular(30.0),
                       side: const BorderSide(color: Colors.blue),
                     ),
                     tooltip: 'Undo',
-                    child: const Icon(
-                      Icons.restore,
-                      color: Colors.grey,
-                    ),
+                    child: const Icon(Icons.restore, color: Colors.grey),
                   ),
                   FloatingActionButton(
                     onPressed: controller.swipeLeft,
                     backgroundColor: Colors.white,
-                    foregroundColor:
-                        Colors.blue, // Change this to the desired outline color
+                    foregroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
+                      borderRadius: BorderRadius.circular(30.0),
                       side: const BorderSide(color: Colors.blue),
                     ),
                     tooltip: 'Dislike',
@@ -93,11 +180,9 @@ class _ExamplePageState extends State<Example> {
                   FloatingActionButton(
                     onPressed: controller.swipeRight,
                     backgroundColor: Colors.white,
-                    foregroundColor:
-                        Colors.blue, // Change this to the desired outline color
+                    foregroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          30.0), // Adjust the radius as needed
+                      borderRadius: BorderRadius.circular(30.0),
                       side: const BorderSide(color: Colors.blue),
                     ),
                     tooltip: 'Like',
@@ -134,39 +219,3 @@ class _ExamplePageState extends State<Example> {
     return true;
   }
 }
-
-final List<ExampleCandidateModel> candidates = [
-  ExampleCandidateModel(
-    name: 'Location 1',
-    address: '123 Main St, Cityville',
-    color: const [Color(0xFFFF3868), Color(0xFFFFB49A)],
-    placeId: 'your_yelp_place_id_1',
-    imageUrl:
-        'https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-  ),
-  ExampleCandidateModel(
-    name: 'Location 2',
-    address: '456 Oak St, Townsville',
-    color: const [Color(0xFF736EFE), Color(0xFF62E4EC)],
-    placeId: 'your_yelp_place_id_2',
-    imageUrl:
-        'https://images.pexels.com/photos/914388/pexels-photo-914388.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-  ),
-  ExampleCandidateModel(
-    name: 'Location 3',
-    address: '789 Pine St, Villageton',
-    color: const [Color(0xFF2F80ED), Color(0xFF56CCF2)],
-    placeId: 'your_yelp_place_id_3',
-    imageUrl:
-        'https://images.pexels.com/photos/984888/pexels-photo-984888.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-  ),
-  ExampleCandidateModel(
-    name: 'Location 4',
-    address: '1011 Elm St, Hamletville',
-    color: const [Color(0xFF0BA4E0), Color(0xFFA9E4BD)],
-    placeId: 'your_yelp_place_id_4',
-    imageUrl:
-        'https://images.pexels.com/photos/4450334/pexels-photo-4450334.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-  ),
-  // Add other locations similarly
-];
