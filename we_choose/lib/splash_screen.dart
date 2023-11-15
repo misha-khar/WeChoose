@@ -1,6 +1,6 @@
 // splash_screen.dart
 import 'package:flutter/material.dart';
-import 'main_screen.dart'; // Import the main_screen.dart file
+import 'main_screen_v1.dart'; // Import the main_screen.dart file
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
